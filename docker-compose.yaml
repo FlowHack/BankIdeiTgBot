@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
   bot:
-    image: flowhack/bankIdeiBot:latest
+    build: flowhack/bank_idei_tg_bot:latest
     restart: always
     depends_on:
       - db

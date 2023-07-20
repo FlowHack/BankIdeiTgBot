@@ -2,7 +2,7 @@ from .keyboards import kb_create_offer, kb_confirm_offer, kb_example_offer, kb_e
 from os import getenv
 
 
-DEBUG = True
+DEBUG = False
 
 TOKEN = getenv("API_TOKEN")
 

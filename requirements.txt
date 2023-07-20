@@ -16,5 +16,4 @@ psycopg2-binary==2.9.6
 pytz==2023.3
 SQLAlchemy==2.0.19
 typing-extensions==4.7.1
-ujson==5.8.0
 yarl==1.9.2
