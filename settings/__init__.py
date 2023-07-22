@@ -1,6 +1,6 @@
 from .functions import send_email
-from .vars import TOKEN, EMAIL_HOST, EMAIL_LOGIN, EMAIL_PASSWORD, EMAIL_PORT, EMAIL_TO, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, REQUESTS, KEYBOARDS, DEBUG
-from .keyboards import FRAZES
+from .vars import TOKEN, EMAIL_HOST, EMAIL_LOGIN, EMAIL_PASSWORD, EMAIL_PORT, EMAIL_TO, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, REQUESTS, DEBUG
+from .keyboards import FRAZES, KEYBOARDS, FIELDS
 
 __all__ = [
     # functions
@@ -18,8 +18,10 @@ __all__ = [
     "DB_NAME",
     "DB_USER",
     "DB_PASSWORD",
-    "KEYBOARDS",
     "REQUESTS",
     # keyboards
     "FRAZES",
+    "FIELDS",
+    "KEYBOARDS",
+    
 ]

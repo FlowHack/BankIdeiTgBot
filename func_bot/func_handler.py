@@ -1,78 +1,113 @@
 from data_base import session, UserOffer
 from settings import send_email
+from datetime import datetime
+from pytz import timezone
 
 
-def get_offer(message, user_id, mention):
-    if "Предложение::" not in message:
+async def write_data_user(user: UserOffer, data: str) -> None:
+    """Функция записывает значение data в поле пользователя,
+    которое определяется по шагу заполнения анкеты
+
+    Args:
+        user (UserOffer): Объект модели БД пользователя
+        data (str): Строковое значение поля БД пользователя
+
+    Raises:
+        ValueError: Ошибка, означающее сбой в заполнении значений полей
+    """
+    step = user.step
+    data = data.strip()
+
+    if data == "":
         raise ValueError(
-            "Не указано предложение, либо указано неверно!" +
-            "\n\nПовторите попытку, исправив ошибку."
+            "Заполняемое поле не может быть пустым!" +
+            "\n\nПовторите попытку"
         )
-    text = message.split("/offer")[1].strip().split("Предложение::")
-    befor_offer = text[0].strip().split("\n")
 
-    if len(befor_offer) < 4:
-        raise ValueError(
-            "Указано меньше полей, чем ожидалось.\nОжидалось 4 поля " +
-            f"до \"Предложение::\", а пришло {len(befor_offer)}." +
-            "\n\nПовторите попытку, исправив ошибку."
-        )
-    if len(befor_offer) > 4:
-        raise ValueError(
-            "Указано больше полей, чем ожидалось.\nОжидалось 4 поля " +
-            f"до \"Предложение\", а пришло {len(befor_offer)}." +
-            "\n\nПовторите попытку, исправив ошибку."
-        )
-    if text[1].strip() == "":
-        raise ValueError(
-            "Поле \"Предложение\" пустое.\n\nПовторите попытку," +
-            "исправив ошибку."
-        )
-    text = befor_offer + [text[1].strip()]
-
-    user: UserOffer = session.query(UserOffer).filter(
-        UserOffer.user_id == user_id
-    ).delete()
-
-    user = UserOffer(
-        user_id=user_id,
-        FIO=text[0],
-        branch=text[1],
-        post=text[2],
-        name_offer=text[3],
-        offer=text[4],
-        mention=mention[1:],
-    )
-    session.add(user)
+    if step == 0:
+        user.FIO = data
+    if step == 1:
+        user.branch = data
+    if step == 2:
+        user.post = data
+    if step == 3:
+        user.name_offer = data
+    if step == 4:
+        user.offer = data
     session.commit()
 
-    user = session.query(UserOffer).filter(
-        UserOffer.user_id == user_id
-    ).first()
 
-    return user
+async def check_field(user: UserOffer) -> bool:
+    """Функция проверяет на пустоту поле шага анкеты
+
+    Args:
+        user (UserOffer): Объект модели БД пользователя
+
+    Returns:
+        bool: Поле заполнено - True, False - пустое
+    """
+    step = user.step
+
+    if step == 0 and user.FIO is None:
+        return False
+    if step == 1 and user.branch is None:
+        return False
+    if step == 2 and user.post is None:
+        return False
+    if step == 3 and user.name_offer is None:
+        return False
+    if step == 4 and user.offer is None:
+        return False
+
+    return True
 
 
-async def send_offer(user_id: int) -> bool:
+async def send_offer(user_id: int) -> None:
+    """Функция отправки предложения на почту
+
+    Args:
+        user_id (int): Числовое значение ID пользователя
+
+    Raises:
+        ValueError: Ошибки, связанные с ошибками значений полей анкеты
+    """
     user: UserOffer = session.query(UserOffer).filter(
         UserOffer.user_id == user_id
     ).first()
+    if user is None:
+        raise ValueError(
+            """Вы ещё не создали предложение!
 
-    subject = "Банк Идей: " + user.name_offer
-    text_email = f"""Предложение в Банк идей
+Создайте сначала предложение.
+"""
+        )
+    if None in [user.FIO, user.branch, user.post, user.name_offer, user.offer]:
+        UserOffer.delete_by_id(user_id)
+        raise ValueError(
+            """Какие-то из полей не заполнены!
+
+Попробуйте заполнить предложение снова.
+"""
+        )
+
+    date = datetime.now(timezone("Etc/GMT+4")).strftime("%d/%m/%Y %H:%M:%S")
+    subject = "Банк Идей: Предложение"
+    mention = user.mention[1:] if user.mention[0] == "@" else user.mention
+    text_email = f"""{user.name_offer}
 
 ФИО: {user.FIO}
 Филиал: {user.branch}
 Должность: {user.post}
 Предложение: {user.offer}
 
-Telegram сотрудника
+{date}
+Telegram сотрудника: https://t.me/{mention}
 """
     html_email = f"""
 <html>
   <head></head>
   <body>
-    <h3 align="center">Предложение в Банк идей</h3><br>
+    <h3 align="center">{user.name_offer}</h3><br>
     <p>
       <b><i>ФИО:</i></b><br>
       &nbsp;&nbsp;{user.FIO}
@@ -81,7 +116,10 @@ Telegram сотрудника
     <p><b><i>Должность:</i></b><br>&nbsp;&nbsp;{user.post}</p>
     <p><b><i>Предложение:</i></b><br>&nbsp;&nbsp;{user.offer}</p><br><br>
     <p align="center">
-      <a href="https://t.me/{user.mention}">
+      {date}
+    </p>
+    <p align="center">
+      <a href="https://t.me/{mention}">
         <b><i>Telegram сотрудника</i></b>
       </a>
     </p>
@@ -91,6 +129,4 @@ Telegram сотрудника
 
     await send_email(subject, text_email, html_email)
 
-    user: UserOffer = session.query(UserOffer).filter(
-        UserOffer.user_id == user_id
-    ).delete()
+    UserOffer.delete_by_id(user_id)

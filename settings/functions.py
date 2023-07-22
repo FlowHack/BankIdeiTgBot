@@ -5,6 +5,13 @@ from email.mime.text import MIMEText
 
 
 async def send_email(subject, message, message_html):
+    """Функция отправки E-mail
+
+    Args:
+        subject (_type_): Тема письма
+        message (_type_): Само письмо
+        message_html (_type_): Письмо в формате HTML
+    """
     smtp = aiosmtplib.SMTP(
         hostname=EMAIL_HOST, port=EMAIL_PORT,
         use_tls=True
