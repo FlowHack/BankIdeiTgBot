@@ -1,9 +1,11 @@
-from aiogram import Bot, Dispatcher, executor, types
-from settings import TOKEN, KEYBOARDS, REQUESTS, FIELDS
-from func_bot import write_data_user, send_offer, check_field
-from data_base import session, UserOffer
-from aiogram.utils.exceptions import NetworkError
 from time import sleep
+
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.utils.exceptions import NetworkError
+
+from data_base import UserOffer, session
+from func_bot import check_field, send_offer, write_data_user
+from settings import FIELDS, KEYBOARDS, REQUESTS, TOKEN
 
 bot_api = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot_api)

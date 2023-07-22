@@ -1,7 +1,9 @@
-from data_base import session, UserOffer
-from settings import send_email
 from datetime import datetime
+
 from pytz import timezone
+
+from data_base import UserOffer, session
+from settings import send_email
 
 
 async def write_data_user(user: UserOffer, data: str) -> None:

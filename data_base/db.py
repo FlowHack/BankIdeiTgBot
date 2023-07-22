@@ -1,10 +1,9 @@
-from sqlalchemy import Column, Integer, String, create_engine, Boolean
-from sqlalchemy.orm import Session, declarative_base
-
-from settings import (DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD,
-                      DB_USER, DEBUG)
 from typing import List
 
+from sqlalchemy import Boolean, Column, Integer, String, create_engine
+from sqlalchemy.orm import Session, declarative_base
+
+from settings import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, DEBUG
 
 if DEBUG:
     engine = create_engine(

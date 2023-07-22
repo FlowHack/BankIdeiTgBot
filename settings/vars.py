@@ -1,6 +1,5 @@
 from os import getenv
 
-
 DEBUG = False
 
 TOKEN = getenv("API_TOKEN")

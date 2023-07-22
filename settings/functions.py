@@ -1,7 +1,9 @@
-import aiosmtplib
-from .vars import EMAIL_HOST, EMAIL_LOGIN, EMAIL_PASSWORD, EMAIL_PORT, EMAIL_TO
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import aiosmtplib
+
+from .vars import EMAIL_HOST, EMAIL_LOGIN, EMAIL_PASSWORD, EMAIL_PORT, EMAIL_TO
 
 
 async def send_email(subject, message, message_html):
